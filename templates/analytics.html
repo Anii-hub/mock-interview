@@ -1,0 +1,76 @@
+
+{% extends "base.html" %}
+{% block content %}
+
+<h3 class="mb-4">Interview Analytics</h3>
+
+<div class="row mb-4">
+  <div class="col-md-4">
+    <div class="card p-3 shadow-sm">
+      <h6>Total Interviews</h6>
+      <h4>{{ total_interviews }}</h4>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card p-3 shadow-sm">
+      <h6>Average Score</h6>
+      <h4>{{ avg_score }}/10</h4>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card p-3 shadow-sm">
+      <h6>Last Interview Score</h6>
+      <h4>{{ last_score }}/10</h4>
+    </div>
+  </div>
+</div>
+
+<div class="card p-4 shadow-sm">
+  <h5 class="mb-3">Score Progress</h5>
+  <canvas id="scoreChart"></canvas>
+</div>
+{{ dates|json_script:"dates-data" }}
+{{ scores|json_script:"scores-data" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+  const labels = JSON.parse(
+    document.getElementById("dates-data").textContent
+  );
+  const scores = JSON.parse(
+    document.getElementById("scores-data").textContent
+  );
+
+  const ctx = document.getElementById("scoreChart");
+
+  new Chart(ctx, {
+    type: "line",
+    data: {
+      labels: labels,
+      datasets: [{
+        label: "Interview Score",
+        data: scores,
+        borderWidth: 2,
+        tension: 0.3,
+        fill: false
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          min: 0,
+          max: 10,
+          ticks: {
+            stepSize: 1
+          }
+        }
+      }
+    }
+  });
+</script>
+
+
+{% endblock %}

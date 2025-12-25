@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-md-7">
+
+    <div class="card shadow-sm p-4">
+
+      <h4 class="mb-3">Interview Setup</h4>
+
+      {% if request.session.resume_uploaded %}
+        <div class="alert alert-success">
+          ✅ Resume uploaded. You can start a resume-based interview.
+        </div>
+      {% else %}
+        <div class="alert alert-warning">
+          ⚠️ No resume uploaded. Resume-based interview disabled.
+        </div>
+      {% endif %}
+
+      <form method="post" action="/interview/start/">
+  {% csrf_token %}
+
+  <!-- Topic (hidden for resume-based) -->
+  <div id="topicBlock">
+    <label class="mt-2">Topic</label>
+    <select name="topic" class="form-select mb-2">
+      <option>Python</option>
+      <option>Django</option>
+      <option>Data Structures</option>
+      <option>HR</option>
+    </select>
+  </div>
+
+  <label>Difficulty</label>
+  <select name="difficulty" class="form-select mb-2">
+    <option>Beginner</option>
+    <option>Intermediate</option>
+    <option>Advanced</option>
+  </select>
+  <label>Number of Questions</label>
+<select name="num_questions" class="form-select mb-3">
+  <option value="3">3 Questions</option>
+  <option value="5" selected>5 Questions</option>
+  <option value="10">10 Questions</option>
+</select>
+
+
+  <label>Interview Mode</label>
+  <select name="mode" id="modeSelect" class="form-select mb-3">
+    <option value="text">General Interview</option>
+
+    {% if request.session.resume_uploaded %}
+      <option value="resume">Resume-Based Interview</option>
+    {% endif %}
+  </select>
+
+  <button class="btn btn-success w-100">
+    Start Interview
+  </button>
+</form>
+
+<script>
+  const modeSelect = document.getElementById("modeSelect");
+  const topicBlock = document.getElementById("topicBlock");
+
+  function toggleTopic() {
+    if (modeSelect.value === "resume") {
+      topicBlock.style.display = "none";
+    } else {
+      topicBlock.style.display = "block";
+    }
+  }
+
+  modeSelect.addEventListener("change", toggleTopic);
+  toggleTopic();
+</script>
+
+    </div>
+
+  </div>
+</div>
+
+{% endblock %}

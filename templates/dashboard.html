@@ -1,0 +1,16 @@
+
+{% extends 'base.html' %}{% block content %}
+<a href="/interview/setup/" class="btn btn-primary">Start Interview</a>
+<a href="/interview/resume/" class="btn btn-secondary">Upload Resume</a>
+<a href="/interview/analytics/" class="btn btn-info">Analytics</a>
+<a href="{% url 'analytics' %}" class="btn btn-info">
+  View Analytics
+</a>
+
+{% if request.session.resume_uploaded %}
+  <a href="/interview/setup/" class="btn btn-warning">
+    Start Resume-Based Interview
+  </a>
+{% endif %}
+
+{% endblock %}

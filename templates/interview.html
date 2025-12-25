@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+
+{% if request.session.mode == "resume" %}
+  <div class="alert alert-info mb-3">
+    📄 This interview is based on your uploaded resume
+  </div>
+{% endif %}
+
+
+<div id="questionCounter" class="mb-2 text-muted">
+  Question {{ current }} of {{ total }}
+</div>
+
+
+  <div id="questionText"
+       style="
+         font-family: 'Times New Roman', serif;
+         font-size: 1.2rem;
+         line-height: 1.7;
+       ">
+    <strong>Q.</strong> {{ question }}
+  </div>
+
+  <button class="btn btn-outline-primary btn-sm mt-3"
+          onclick="speakQuestion()">
+    🔊 Read Question
+  </button>
+</div>
+
+
+<div class="card shadow-sm p-4">
+  <h5>Your Answer</h5>
+
+  <textarea id="answerBox" class="form-control mb-3" rows="6"
+    placeholder="Type your answer or use voice input..."></textarea>
+
+  <div class="d-flex gap-2">
+    <button id="micBtn" class="btn btn-danger">🎤 Speak</button>
+    <button id="stopBtn" class="btn btn-secondary" disabled>⏹ Stop</button>
+    <button id="submitBtn" class="btn btn-success">Submit</button>
+  </div>
+
+  <div id="errorBox" class="text-danger mt-3"></div>
+</div>
+
+<div class="card shadow-sm p-4 mt-3">
+  <h5>AI Feedback</h5>
+  <div id="feedbackBox" class="mt-3 p-3 bg-light border rounded" style="white-space: pre-wrap; font-family: system-ui;">
+  </div>
+
+</div>
+
+</div>
+</div>
+
+<script src="{% static 'js/interview.js' %}"></script>
+{% endblock %}
