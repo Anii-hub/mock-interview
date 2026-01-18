@@ -4,33 +4,82 @@
 
 <h3 class="mb-4">Interview Analytics</h3>
 
+<!-- SUMMARY CARDS -->
 <div class="row mb-4">
-  <div class="col-md-4">
-    <div class="card p-3 shadow-sm">
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm text-center">
       <h6>Total Interviews</h6>
-      <h4>{{ total_interviews }}</h4>
+      <h3 class="fw-bold">{{ total_interviews }}</h3>
     </div>
   </div>
 
-  <div class="col-md-4">
-    <div class="card p-3 shadow-sm">
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm text-center">
       <h6>Average Score</h6>
-      <h4>{{ avg_score }}/10</h4>
+      <h3 class="fw-bold">{{ avg_score }}/10</h3>
     </div>
   </div>
 
-  <div class="col-md-4">
-    <div class="card p-3 shadow-sm">
-      <h6>Last Interview Score</h6>
-      <h4>{{ last_score }}/10</h4>
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm text-center">
+      <h6>Best Score</h6>
+      <h3 class="fw-bold">{{ best_score }}/10</h3>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="card p-3 shadow-sm text-center">
+      <h6>Last Interview</h6>
+      <h3 class="fw-bold">{{ last_score }}/10</h3>
     </div>
   </div>
 </div>
 
-<div class="card p-4 shadow-sm">
-  <h5 class="mb-3">Score Progress</h5>
+<!-- SCORE TREND -->
+<div class="card p-4 shadow-sm mb-4">
+  <h5 class="mb-3">Score Progress Over Time</h5>
   <canvas id="scoreChart"></canvas>
 </div>
+
+<!-- INTERVIEW HISTORY TABLE -->
+<div class="card p-4 shadow-sm mb-4">
+  <h5 class="mb-3">Interview History</h5>
+
+  <div class="table-responsive">
+    <table class="table table-bordered table-hover align-middle">
+      <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Date</th>
+          <th>Score</th>
+          <th>Difficulty</th>
+          <th>Mode</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in results %}
+        <tr>
+          <td>{{ forloop.counter }}</td>
+          <td>{{ r.created_at|date:"d M Y" }}</td>
+          <td>
+            <span class="badge bg-success">{{ r.score }}/10</span>
+          </td>
+          <td>{{ r.difficulty|default:"—" }}</td>
+          <td>{{ r.mode|default:"General" }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="5" class="text-center text-muted">
+            No interviews yet
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DATA FOR CHART -->
 {{ dates|json_script:"dates-data" }}
 {{ scores|json_script:"scores-data" }}
 
@@ -54,11 +103,12 @@
         label: "Interview Score",
         data: scores,
         borderWidth: 2,
-        tension: 0.3,
+        tension: 0.4,
         fill: false
       }]
     },
     options: {
+      responsive: true,
       scales: {
         y: {
           min: 0,
@@ -71,6 +121,5 @@
     }
   });
 </script>
-
 
 {% endblock %}

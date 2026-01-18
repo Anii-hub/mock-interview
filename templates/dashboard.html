@@ -1,16 +1,72 @@
+{% extends "base.html" %}
+{% block content %}
 
-{% extends 'base.html' %}{% block content %}
-<a href="/interview/setup/" class="btn btn-primary">Start Interview</a>
-<a href="/interview/resume/" class="btn btn-secondary">Upload Resume</a>
-<a href="/interview/analytics/" class="btn btn-info">Analytics</a>
-<a href="{% url 'analytics' %}" class="btn btn-info">
-  View Analytics
-</a>
+<div class="container mt-4">
 
-{% if request.session.resume_uploaded %}
-  <a href="/interview/setup/" class="btn btn-warning">
-    Start Resume-Based Interview
-  </a>
-{% endif %}
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3>Welcome, {{ request.user.username }}</h3>
+      <p class="text-muted mb-0">AI-powered mock interview platform</p>
+    </div>
+
+    <!-- SINGLE Start Interview button -->
+    <a href="{% url 'resume_upload' %}" class="btn btn-success">
+      + Upload resume
+    </a>
+  </div>
+
+  <!-- Stats -->
+  <div class="row mb-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm p-3 text-center">
+        <h6>Total Interviews</h6>
+        <h2>{{ total_interviews }}</h2>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm p-3 text-center">
+        <h6>Average Score</h6>
+        <h2>{{ avg_score }}/10</h2>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="card shadow-sm p-3 text-center">
+        <h6>Last Score</h6>
+        <h2>{{ last_score }}/10</h2>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card shadow-sm p-4">
+        <h5>📄 Interview</h5>
+        <p class="text-muted">
+          Take AI-generated interviews based on your topic or resume.
+        </p>
+        <a href="{% url 'interview_setup' %}" class="btn btn-outline-primary">
+          Start Interview
+        </a>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card shadow-sm p-4">
+        <h5>📊 Analytics</h5>
+        <p class="text-muted">
+          View your interview performance and progress.
+        </p>
+        <a href="{% url 'analytics' %}" class="btn btn-outline-secondary">
+          View Analytics
+        </a>
+      </div>
+    </div>
+  </div>
+
+</div>
 
 {% endblock %}

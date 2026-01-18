@@ -19,66 +19,93 @@
       {% endif %}
 
       <form method="post" action="/interview/start/">
-  {% csrf_token %}
+        {% csrf_token %}
 
-  <!-- Topic (hidden for resume-based) -->
-  <div id="topicBlock">
-    <label class="mt-2">Topic</label>
-    <select name="topic" class="form-select mb-2">
-      <option>Python</option>
-      <option>Django</option>
-      <option>Data Structures</option>
-      <option>HR</option>
-    </select>
-  </div>
+        <!-- ================= TOPIC SECTION ================= -->
+        <div id="topicBlock">
+          <label class="form-label">Interview Topic</label>
 
-  <label>Difficulty</label>
-  <select name="difficulty" class="form-select mb-2">
-    <option>Beginner</option>
-    <option>Intermediate</option>
-    <option>Advanced</option>
-  </select>
-  <label>Number of Questions</label>
-<select name="num_questions" class="form-select mb-3">
-  <option value="3">3 Questions</option>
-  <option value="5" selected>5 Questions</option>
-  <option value="10">10 Questions</option>
-</select>
+          <input
+            type="text"
+            name="topic"
+            id="topicInput"
+            class="form-control"
+            placeholder="e.g. Python Backend, Machine Learning, System Design"
+            required
+          />
 
+          <!-- Quick suggestions -->
+          <div class="mt-2">
+            <span class="badge bg-secondary topic-suggestion">Python</span>
+            <span class="badge bg-secondary topic-suggestion">Django</span>
+            <span class="badge bg-secondary topic-suggestion">DSA</span>
+            <span class="badge bg-secondary topic-suggestion">System Design</span>
+          </div>
+        </div>
 
-  <label>Interview Mode</label>
-  <select name="mode" id="modeSelect" class="form-select mb-3">
-    <option value="text">General Interview</option>
+        <!-- ================= DIFFICULTY ================= -->
+        <label class="form-label mt-3">Difficulty</label>
+        <select name="difficulty" class="form-select mb-2">
+          <option>Beginner</option>
+          <option>Intermediate</option>
+          <option>Advanced</option>
+        </select>
 
-    {% if request.session.resume_uploaded %}
-      <option value="resume">Resume-Based Interview</option>
-    {% endif %}
-  </select>
+        <!-- ================= QUESTION COUNT ================= -->
+        <label class="form-label">Number of Questions</label>
+        <select name="num_questions" class="form-select mb-3">
+          <option value="3">3 Questions</option>
+          <option value="5" selected>5 Questions</option>
+          <option value="10">10 Questions</option>
+        </select>
 
-  <button class="btn btn-success w-100">
-    Start Interview
-  </button>
-</form>
+        <!-- ================= MODE ================= -->
+        <label class="form-label">Interview Mode</label>
+        <select name="mode" id="modeSelect" class="form-select mb-3">
+          <option value="text">General Interview</option>
 
-<script>
-  const modeSelect = document.getElementById("modeSelect");
-  const topicBlock = document.getElementById("topicBlock");
+          {% if request.session.resume_uploaded %}
+            <option value="resume">Resume-Based Interview</option>
+          {% endif %}
+        </select>
 
-  function toggleTopic() {
-    if (modeSelect.value === "resume") {
-      topicBlock.style.display = "none";
-    } else {
-      topicBlock.style.display = "block";
-    }
-  }
-
-  modeSelect.addEventListener("change", toggleTopic);
-  toggleTopic();
-</script>
+        <button class="btn btn-success w-100">
+          Start Interview
+        </button>
+      </form>
 
     </div>
 
   </div>
 </div>
+
+<!-- ================= PAGE SCRIPT ================= -->
+<script>
+  const modeSelect = document.getElementById("modeSelect");
+  const topicBlock = document.getElementById("topicBlock");
+  const topicInput = document.getElementById("topicInput");
+
+  function toggleTopic() {
+    if (modeSelect.value === "resume") {
+      topicBlock.style.display = "none";
+      topicInput.removeAttribute("required");
+      topicInput.value = "";
+    } else {
+      topicBlock.style.display = "block";
+      topicInput.setAttribute("required", "required");
+    }
+  }
+
+  // Quick topic badge click
+  document.querySelectorAll(".topic-suggestion").forEach(el => {
+    el.addEventListener("click", () => {
+      topicInput.value = el.innerText;
+      topicInput.focus();
+    });
+  });
+
+  modeSelect.addEventListener("change", toggleTopic);
+  toggleTopic();
+</script>
 
 {% endblock %}

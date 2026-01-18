@@ -65,7 +65,6 @@ def generate_resume_based_question(resume_text, difficulty):
 
     return clean_question(response.text)
 
-
 def evaluate_full_interview(questions, answers):
     qa_text = ""
     for i, (q, a) in enumerate(zip(questions, answers), start=1):
@@ -80,32 +79,53 @@ Answer {i}:
     response = client.models.generate_content(
         model=MODEL_NAME,
         contents=f"""
-        You are a professional interviewer.
+You are a senior technical interviewer at a top tech company.
 
-        Below is a complete interview transcript:
-        {qa_text}
+Below is a full interview transcript:
+{qa_text}
 
-        Task:
-        - Evaluate the overall performance
-        - Do NOT evaluate question by question
-        - Provide a final interview-style assessment
+Evaluate the candidate holistically.
 
-        Respond in this EXACT format:
+Give:
+1. Numeric scores per skill (0–10)
+2. Detailed professional feedback
+3. Hiring readiness
 
-        OVERALL SCORE: X/10
+Respond in EXACTLY this format:
 
-        STRENGTHS:
-        - point
-        - point
+OVERALL SCORE: X/10
 
-        WEAKNESSES:
-        - point
-        - point
+SKILL SCORES:
+- Technical Knowledge: X/10
+- Problem Solving: X/10
+- Communication: X/10
+- Confidence: X/10
+- Interview Readiness: X/10
 
-        IMPROVEMENT SUGGESTIONS:
-        - point
-        - point
-        """
+TECHNICAL ASSESSMENT:
+- Depth of understanding
+- Accuracy of concepts
+- Practical reasoning
+
+COMMUNICATION & CLARITY:
+- Explanation quality
+- Structure of answers
+- Confidence while explaining
+
+STRENGTHS:
+- Specific strengths observed
+
+WEAKNESSES:
+- Specific gaps or mistakes
+
+IMPROVEMENT SUGGESTIONS:
+- Actionable next steps
+- Topics to focus on
+
+HIRING RECOMMENDATION:
+- Strong Hire / Hire / Borderline / No Hire
+- Suitable level (Junior / Mid / Senior)
+"""
     )
 
     return response.text.strip()

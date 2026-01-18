@@ -78,18 +78,29 @@ def start_interview(request):
         "current": 1,
         "total": total_questions
     })
+    request.session.modified = True
+
 
 
 @login_required
 def submit_answer(request):
     if request.method != "POST":
-        return JsonResponse({"error": "Invalid request"})
+        return JsonResponse({"error": "Invalid request"}, status=400)
 
     answer = request.POST.get("answer", "").strip()
     if not answer:
-        return JsonResponse({"error": "Please provide an answer."})
+        return JsonResponse({"error": "Please provide an answer."}, status=400)
 
-    # Get session data
+    # 🔊 Voice confidence inputs
+    voice_words = int(request.POST.get("voice_words", 0))
+    voice_duration = float(request.POST.get("voice_duration", 0))
+
+    if voice_duration > 0:
+        speech_rate = voice_words / voice_duration
+        voice_confidence = min(10, max(1, int(speech_rate * 2)))
+    else:
+        voice_confidence = 1
+
     questions = request.session.get("questions", [])
     answers = request.session.get("answers", [])
     current_index = request.session.get("current_index", 0)
@@ -99,22 +110,16 @@ def submit_answer(request):
     resume_text = request.session.get("resume_text")
     topic = request.session.get("topic")
 
-    # Save answer
     answers.append(answer)
     request.session["answers"] = answers
 
-    # 🔥 MOVE TO NEXT QUESTION INDEX FIRST
     current_index += 1
     request.session["current_index"] = current_index
 
-    # ✅ CHECK IF MORE QUESTIONS ARE LEFT
+    # 🔁 NEXT QUESTION
     if current_index < total_questions:
-
         if mode == "resume" and resume_text:
-            next_question = generate_resume_based_question(
-                resume_text=resume_text,
-                difficulty=difficulty
-            )
+            next_question = generate_resume_based_question(resume_text, difficulty)
         else:
             next_question = generate_question(topic, difficulty)
 
@@ -123,29 +128,27 @@ def submit_answer(request):
 
         return JsonResponse({
             "next_question": next_question,
-            "current": current_index + 1,  # ✅ FIXED
+            "current": current_index + 1,
             "total": total_questions
-})
+        })
 
-    # 🎯 INTERVIEW COMPLETE → FINAL EVALUATION
+    # 🎯 FINAL FEEDBACK
     final_feedback = evaluate_full_interview(questions, answers)
 
-# 🔍 Extract score safely
-    import re
-    match = re.search(r'OVERALL SCORE:\\s*(\\d+)', final_feedback)
+    match = re.search(r'OVERALL SCORE:\s*(\d+)', final_feedback)
     score = int(match.group(1)) if match else 0
 
-    # 💾 Save interview result
-    from .models import InterviewResult
     InterviewResult.objects.create(
         user=request.user,
-        score=score
+        score=score,
+        difficulty=difficulty,
+        mode="Resume-Based" if mode == "resume" else "General",
+        voice_confidence=voice_confidence
     )
 
     return JsonResponse({
         "final_feedback": final_feedback
     })
-
 
 
 
@@ -160,14 +163,17 @@ def analytics(request):
     scores = [r.score for r in results]
     dates = [r.created_at.strftime("%d %b") for r in results]
 
+    total_interviews = results.count()
     avg_score = round(sum(scores) / len(scores), 1) if scores else 0
+    best_score = max(scores) if scores else 0
     last_score = scores[-1] if scores else 0
-    total_interviews = len(scores)
 
     return render(request, "analytics.html", {
         "scores": scores,
         "dates": dates,
+        "total_interviews": total_interviews,
         "avg_score": avg_score,
+        "best_score": best_score,
         "last_score": last_score,
-        "total_interviews": total_interviews
+        "results": results
     })
