@@ -142,8 +142,3 @@ def safe_generate(call_fn):
             time.sleep(3)
             return call_fn()
         raise
-def generate_question(topic, difficulty):
-    return safe_generate(lambda: client.models.generate_content(
-        model=MODEL_NAME,
-        contents=f"Ask one {difficulty} interview question on {topic}."
-    )).text
