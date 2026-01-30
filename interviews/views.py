@@ -3,8 +3,8 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from .ai_engine import generate_question, generate_resume_based_question,evaluate_full_interview
-from .models import InterviewSession
 import PyPDF2, re
+from .models import InterviewResult
 
 @login_required
 def interview_setup(request):
@@ -48,7 +48,7 @@ def start_interview(request):
     mode = request.POST["mode"]
     total_questions = int(request.POST["num_questions"])
 
-    # 🔁 Clear previous interview data
+    #  Clear previous interview data
     request.session["questions"] = []
     request.session["answers"] = []
     request.session["current_index"] = 0
@@ -58,7 +58,7 @@ def start_interview(request):
 
     resume_text = request.session.get("resume_text")
 
-    # ✅ GENERATE FIRST QUESTION HERE
+    #  GENERATE FIRST QUESTION HERE
     if mode == "resume" and resume_text:
         first_question = generate_resume_based_question(
             resume_text=resume_text,
@@ -70,7 +70,7 @@ def start_interview(request):
         first_question = generate_question(topic, difficulty)
         request.session["topic"] = topic
 
-    # ✅ STORE FIRST QUESTION
+    #  STORE FIRST QUESTION
     request.session["questions"].append(first_question)
 
     return render(request, "interview.html", {
@@ -78,9 +78,7 @@ def start_interview(request):
         "current": 1,
         "total": total_questions
     })
-    request.session.modified = True
-
-
+    
 
 @login_required
 def submit_answer(request):
@@ -91,7 +89,7 @@ def submit_answer(request):
     if not answer:
         return JsonResponse({"error": "Please provide an answer."}, status=400)
 
-    # 🔊 Voice confidence inputs
+    #  Voice confidence inputs
     voice_words = int(request.POST.get("voice_words", 0))
     voice_duration = float(request.POST.get("voice_duration", 0))
 
@@ -116,7 +114,7 @@ def submit_answer(request):
     current_index += 1
     request.session["current_index"] = current_index
 
-    # 🔁 NEXT QUESTION
+    #  NEXT QUESTION
     if current_index < total_questions:
         if mode == "resume" and resume_text:
             next_question = generate_resume_based_question(resume_text, difficulty)
@@ -132,7 +130,7 @@ def submit_answer(request):
             "total": total_questions
         })
 
-    # 🎯 FINAL FEEDBACK
+    #  FINAL FEEDBACK
     final_feedback = evaluate_full_interview(questions, answers)
 
     match = re.search(r'OVERALL SCORE:\s*(\d+)', final_feedback)
@@ -152,9 +150,8 @@ def submit_answer(request):
 
 
 
-from django.contrib.auth.decorators import login_required
-from django.db.models import Avg
-from .models import InterviewResult
+
+
 
 @login_required
 def analytics(request):
